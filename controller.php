@@ -7,7 +7,11 @@ require('model.php');
 db_connection();
 
 if (!isset($_POST) AND !isset($_GET)) echo $lang['error_data'];
+
+############################
 # Записываем новый результат
+############################
+
 if (empty($_GET) AND isset($_POST) AND !empty($_POST)):
 
   if (newScore_validate()):
@@ -19,7 +23,11 @@ if (empty($_GET) AND isset($_POST) AND !empty($_POST)):
     echo $error;
 
   endif;
+
+####################
 # Выводим результаты
+####################
+
 elseif(isset($_GET) AND !empty($_GET)):
 
   if(validate_result()):
@@ -42,16 +50,18 @@ endif;
 
 # ФУНКЦИИ
 
-### Запись нового результата
+##########################
+# Запись нового результата
+##########################
 
-function db_connection(){
+function db_connection(){ // Подключение к БД
 
   $host="localhost"; $user="root"; $password=""; $db="score";
 
   mysql_connect($host, $user, $password); mysql_select_db($db);
 }
 
-function newScore_check_string($param){
+function newScore_check_string($param){ // Проверка текстовых полей
 
   global $data, $error, $lang;
 
@@ -67,7 +77,7 @@ function newScore_check_string($param){
 
 }
 
-function newScore_check_integer($param){
+function newScore_check_integer($param){ // Проверка числовых полей ("очки", "день", "месяц", "год")
 
   global $data, $error, $lang;
 
@@ -83,7 +93,7 @@ function newScore_check_integer($param){
 
 }
 
-function newScore_validate(){
+function newScore_validate(){ // Проверка введенных данных для добавления новой записи
   
   global $data, $error;
 
@@ -119,7 +129,7 @@ function newScore_validate(){
 
 }
 
-function newScore_add(){
+function newScore_add(){ // Если прошли проверку, добавляем новую запись
 
   global $data, $lang, $newScore_add_query;
 
@@ -139,9 +149,11 @@ function newScore_add(){
 
 }
 
+###################
 # Вывод результатов
+###################
 
-function validate_result(){
+function validate_result(){ // Проверяем - правильно ли пришел запрос на предоставление данных
 
   global $period, $page;
 
@@ -160,7 +172,7 @@ function validate_result(){
 
 }
 
-function GetDistinctName(){
+function GetDistinctName(){ // Выделяем всех игроков в один массив
 
   global $json,$distinct_name_query;
 
@@ -176,7 +188,7 @@ function GetDistinctName(){
 
 }
 
-function GetPeriod($duration){
+function GetPeriod($duration){ // Определяем, какой период пришел в запросе (дневной, недельный...)
 
   global $period, $period_time;
 
@@ -201,13 +213,11 @@ function GetPeriod($duration){
 
 }
 
-function GetScoreByPeriod() {
+function GetScoreByPeriod() { // Получаем сумму очков для каждого игрока за выбранный период
 
   global $json, $period, $select_score_by_period_query;
 
   foreach ($json as $name=>$result):
-
-    //echo str_replace(array('%name%', '%period%'),array($name,$period),$select_score_by_period_query);
 
     $get_sum = mysql_fetch_array(mysql_query(str_replace(array('%name%', '%period%'),array($name,$period),$select_score_by_period_query)));
 
@@ -223,7 +233,7 @@ function GetScoreByPeriod() {
 
 }
 
-function ResultArray(){
+function ResultArray(){ // Приводим в порядок массив с именами игроков и их суммой очков
 
   global $json;
 
@@ -233,7 +243,7 @@ function ResultArray(){
 
 }
 
-function Pagination(){
+function Pagination(){ // Определяем, какую страницу нужно показывать
 
   global $json, $page, $max_score_on_page, $istart, $istop;
 
@@ -259,7 +269,7 @@ function Pagination(){
 
 }
 
-function GetJson(){
+function GetJson(){ // Получаем JSON, который отдаем клиенту
 
   global $json, $page, $max_score_on_page, $period_time, $istart, $istop;
 
