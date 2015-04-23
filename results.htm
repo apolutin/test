@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Форма отправки данных</title>
+  <link href="style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript">
+
+    function truncate_table() {
+
+      var div_array = new Array('rank1','rank2','rank3','name1','name2','name3','score1','score2','score3');
+
+      for (var key in div_array) {
+        $("#"+div_array[key]).empty();
+      }
+
+    }
+
+    function SetColorOnButton() {
+
+      var button_array = new Array('daily','weekly','monthly','all_time');
+
+      for (var key in button_array) {
+        $("#"+button_array[key]).css('background', '#fff');
+      }
+
+      var period = $('#period').val();
+      $("#"+period).css('background', '#93c47d');
+
+    }
+
+    function SimpleRequestJsonPeriod(period) {
+
+      $('#period').val(period);
+      $('#page').val(1);
+
+      SetColorOnButton();
+
+      SimpleRequestJson(0);
+
+    }
+
+    function SimpleRequestJson(toSwitch) {
+
+      var period = $('#period').val();
+      var page = parseFloat($('#page').val());
+      var true_page = page + parseFloat(toSwitch);
+
+      $.ajax({ 
+        type: "POST",
+        url: "controller.php?result&period="+period+"&page="+true_page,
+        data: "get",
+
+        success: function(jsondata) {
+          var obj = jQuery.parseJSON(jsondata);
+          truncate_table();
+          for(var key in obj){
+           
+            if (key == 'page'){
+              $('#page').val(obj[key]); 
+            }
+            else if (key == 'period'){
+              $('#period').val(obj[key]);
+            }
+            else {
+              $("#"+key).append(obj[key]);
+            }
+          }
+        },
+      });
+    }
+
+    $(document).ready(function() {
+
+      SetColorOnButton();
+      SimpleRequestJson(0);
+
+    });
+
+  </script>
+</head>
+<body>
+
+  <div class="header">
+    <div class="button" id="daily" onClick="SimpleRequestJsonPeriod('daily');">Daily</div>
+    <div class="button" id="weekly" onClick="SimpleRequestJsonPeriod('weekly');">Weekly</div>
+    <div class="button" id="monthly" onClick="SimpleRequestJsonPeriod('monthly');">Monthly</div>
+    <div class="button" id="all_time" onClick="SimpleRequestJsonPeriod('all_time');">All Time</div>
+    <div style="clear: both;"></div>
+    <input type="hidden" id="period" value="all_time" />
+    <input type="hidden" id="page" value="1" />
+  </div>
+  <div class="table">
+    <table>
+      <tr>
+        <td><strong>Rank</strong></td>
+        <td><strong>Name</strong></td>
+        <td><strong>Score</strong></td>
+      </tr>
+      <tr>
+        <td id="rank1"></td>
+        <td id="name1"></td>
+        <td id="score1"></td>
+      </tr>
+      <tr>
+        <td id="rank2"></td>
+        <td id="name2"></td>
+        <td id="score2"></td>
+      </tr>
+      <tr>
+        <td id="rank3"></td>
+        <td id="name3"></td>
+        <td id="score3"></td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <div class="pagination">
+            <div class="button" id="previous" onClick="SimpleRequestJson('-1');"><<< Prev</div>
+            <div class="button" id="next" onClick="SimpleRequestJson('1');">Next >>></div>
+            <div style="clear: both;"></div>
+          </div>
+
+
+        </td>
+      </tr>
+    </table>
+    <div style="clear: both;"></div>
+  </div>
+</body>
+</html>
